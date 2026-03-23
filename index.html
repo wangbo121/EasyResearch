@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" value="width=device-width, initial-scale=1.0" />
+  <title>像生活一样学外文</title>
+  <link href="https://cdn.jsdelivr.net/npm/element-plus/dist/index.css" rel="stylesheet" />
+  <style>
+    .app-container {
+      display: flex;
+      min-height: 100vh;
+      font-family: 'Source Sans Pro', sans-serif;
+    }
+    .left-panel {
+      width: 25%;
+      padding-right: 8px;
+    }
+    .right-panel {
+      flex-grow: 1;
+      padding-left: 8px;
+    }
+    .app-title {
+      position: absolute;
+      top: 20px;
+      left: 16px;
+      font-size: 24px;
+      color: #3a7bd5;
+    }
+    .left-panel h4 {
+      margin-top: 20px;
+      font-size: 18px;
+      color: #3a7bd5;
+    }
+    .upload-area {
+      display: flex;
+      gap: 16px;
+    }
+    .upload-area input[type="file"] {
+      flex-grow: 1;
+    }
+    .preview-container {
+      position: relative;
+      height: 200px;
+      background-color: #f5fbff;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+    .preview-img, .preview-video {
+      object-fit: contain;
+      width: 100%;
+    }
+    .diagram-area {
+      position: relative;
+      height: 250px;
+      background-color: #f0f8ff;
+      border-radius: 8px;
+    }
+    .progress-bar {
+      position: absolute;
+      top: -34px;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background-color: #3a7bd5;
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .progress-bar .bar {
+      height: 100%;
+      width: 0%;
+      background-color: white;
+      transition: width 0.4s linear;
+    }
+    @media (max-width: 768px) {
+      .app-container {
+        flex-direction: column;
+      }
+      .left-panel, .right-panel {
+        padding: 16px;
+      }
+      .app-title {
+        font-size: 20px;
+      }
+      .upload-area input[type="file"] {
+        width: 45%;
+        height: 30px;
+      }
+    }
+  </style>
+</head>
+<body class="app-container">
+<div v-if="true">
+  <div class="left-panel">
+    <!-- 应用名称 -->
+    <h1 class="app-title">像生活一样学外文</h1>
+    <!-- 对话框（简化） -->
+    <h4>对话区域</h4>
+    <textarea rows="4" placeholder="输入您的问题或需求..." v-model="dialogInput"></textarea>
+    
+    <div class="upload-area">
+      <input type="file" accept=".pdf,.jpg,.png,.mp4" />
+    </div>
+  </div>
+  
+  <!-- 右侧栏 -->
+  <div class="right-panel">
+    <!-- 文件预览区域 -->
+    <div class="preview-container" id="contentPreview"></div>
+    
+    <!-- 脑图显示区域 -->
+    <div class="diagram-area" v-if="hasDiagram"></div>
+    <div class="progress-bar"><div class="bar" :style="{ width: 0 }"></div></div>
+    
+    <!-- 图像显示区域 -->
+    <div style="position: absolute; top: 80px; left: 0; right: 0; height: 200px;"></div>
+    
+    <!-- 视频显示区域 -->
+    <video controls class="preview-video" id="videoPreview"></video>
+  </div>
+</div>
+
+<script type="module">
+import { ref } from 'vue'
+const app = new Vue({
+  el: '#app',
+  data() {
+    return {
+      dialogInput: '',
+      hasDiagram: false,
+      progress: 0
+    }
+  },
+  methods: {
+    handleFileUpload(event) {
+      const file = event.target.files[0]
+      if (!file) return
+      
+      // 简单预览逻辑（实际应用需处理不同格式）
+      if (file.name.endsWith('.pdf') || file.name.endsWith('.jpg') || file.name.endsWith('.png')) {
+        const blob = new Blob([file], { type: file.type })
+        const url = URL.createObjectURL(blob)
+        document.getElementById('contentPreview').innerHTML = `<img src="${url}" style="max-width: 100%; height: auto;">`
+      } else if (file.name.endsWith('.mp4')) {
+        const videoUrl = URL.createObjectURL(file)
+        document.getElementById('videoPreview').src = videoUrl
+        
+        // 模拟脑图加载进度（仅为演示）
+        this.progress = 0
+        setTimeout(() => {
+          this.progress = Math.min(this.progress + 1, 100)
+          document.querySelector('.bar')?.style.width = this.progress + '%'
+          this.hasDiagram = true
+        }, 1000)
+      }
+    },
+    handleFileClose() {
+      document.getElementById('contentPreview').innerHTML = ''
+    }
+  },
+  computed: {
+    titleText() {
+      return '像生活一样学外文'
+    },
+    leftPanelTitle() {
+      return '对话区域'
+    }
+  }
+})
+</script>
+</body>
+</html>
